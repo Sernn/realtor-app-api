@@ -9,11 +9,14 @@ import {
   Put,
   Query,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { HomeService } from './home.service';
 import { CreateHomeDto, HomeResponseDto, UpdateHomeDto } from './dto/home.dto';
-import { PropertyType } from '@prisma/client';
-import { IUserType, User } from '../user/decorators/user.decorator';
+import { PropertyType, UserType } from '@prisma/client';
+import { UserInfo, User } from '../user/decorators/user.decorator';
+import { AuthGuard } from '../guards/auth.guard';
+import { Roles } from '../decorators/roles.decorator';
 
 @Controller('home')
 export class HomeController {
@@ -46,16 +49,20 @@ export class HomeController {
     return this.homeService.getHomeById(id);
   }
 
+  @Roles(UserType.REALTOR)
+  @UseGuards(AuthGuard)
   @Post()
-  createHome(@Body() body: CreateHomeDto, @User() user: IUserType) {
+  createHome(@Body() body: CreateHomeDto, @User() user: UserInfo) {
     return this.homeService.createHome(body, user.id);
   }
 
+  @Roles(UserType.REALTOR)
+  @UseGuards(AuthGuard)
   @Put(':id')
   async updateHome(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: UpdateHomeDto,
-    @User() user: IUserType,
+    @User() user: UserInfo,
   ) {
     const realtor = await this.homeService.getRealtorByHomeId(id);
     if (realtor.id !== user.id) {
@@ -64,10 +71,12 @@ export class HomeController {
     return this.homeService.updatehomeById(id, body);
   }
 
+  @Roles(UserType.REALTOR)
+  @UseGuards(AuthGuard)
   @Delete(':id')
   async deleteHome(
     @Param('id', ParseIntPipe) id: number,
-    @User() user: IUserType,
+    @User() user: UserInfo,
   ) {
     const realtor = await this.homeService.getRealtorByHomeId(id);
     if (realtor.id !== user.id) {
@@ -76,3 +85,9 @@ export class HomeController {
     return this.homeService.deletehomeById(id);
   }
 }
+
+// BUYER TOKEN
+// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiQnV5ZXIiLCJpZCI6MTAwLCJpYXQiOjE3MTQ0NzYzNzAsImV4cCI6MTc1MDQ3NjM3MH0.JL7sM-dvZxOgC4lSdi4VV_cq3tk1q0jVQyLehmFV0OE
+
+// REALTOR TOKEN
+// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoibWlrZSIsImlkIjo2NywiaWF0IjoxNzE0MDUyMTAwLCJleHAiOjE3NTAwNTIxMDB9.JJZ4I5z80qmaCyEQ_FBsOTi9xDF8bpjaPVpiWLDOKJ4
