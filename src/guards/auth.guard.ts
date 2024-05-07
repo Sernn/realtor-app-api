@@ -10,10 +10,6 @@ interface JWTPayload {
   exp: number;
 }
 
-interface testOnly {
-  test: string;
-}
-
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
