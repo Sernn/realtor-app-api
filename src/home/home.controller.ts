@@ -44,7 +44,7 @@ export class HomeController {
       ...(price && { price }),
       ...(propertyType && { propertyType }),
     };
-    return this.homeService.gethomes(filters);
+    return this.homeService.getHomes(filters);
   }
 
   @Get(':id')
@@ -69,7 +69,7 @@ export class HomeController {
     if (realtor.id !== user.id) {
       throw new UnauthorizedException();
     }
-    return this.homeService.updatehomeById(id, body);
+    return this.homeService.updateHomeById(id, body);
   }
 
   @Roles(UserType.REALTOR)
